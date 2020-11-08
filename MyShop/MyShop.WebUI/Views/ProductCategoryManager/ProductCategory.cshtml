@@ -1,0 +1,32 @@
+﻿@model IEnumerable<MyShop.Core.Models.ProductCategory>
+
+@{
+    ViewBag.Title = "ProductCategory";
+}
+
+<h2>Product Category</h2>
+
+<p>
+    @Html.ActionLink("Create New", "CreateProductCategory")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "EditProductCategory", new { id=item.Id }) |
+            @Html.ActionLink("Delete", "DeleteProductCategory", new { id=item.Id })
+        </td>
+    </tr>
+}
+
+</table>
