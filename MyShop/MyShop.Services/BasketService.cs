@@ -1,5 +1,6 @@
 ﻿using MyShop.Core.Contracts;
 using MyShop.Core.Models;
+using MyShop.Core.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Web;
 
 namespace MyShop.Services
 {
-    public class BasketService
+    public class BasketService : IBasketService
     {
         IRepository<Product> productRepo;
         IRepository<Basket> basketRepo;
@@ -96,6 +97,51 @@ namespace MyShop.Services
                 basketRepo.Commit();
             }
         }
-    }
 
+        public List<BasketItemViewModel> GetBasketItems(HttpContextBase httpContext)
+        {
+            var basket = GetBasket(httpContext, false);
+
+            if (basket != null)
+            {
+                var basketItems = (from b in basket.BasketItems
+                                   join p in productRepo.Collection()
+                                   on b.ProductId equals p.Id
+                                   select new BasketItemViewModel() {
+                                    Id = b.Id,
+                                    Quantity = b.Quantity,
+                                    ProductName = p.Name,
+                                    Image = p.Image,
+                                    Price = p.Price
+                                   }).ToList();
+
+                return basketItems;
+            }
+
+            return new List<BasketItemViewModel>();
+        }
+
+        public BasketSummaryViewModel GetBasketSummary(HttpContextBase httpContext)
+        {
+            var basket = GetBasket(httpContext, false);
+            var basketSummary = new BasketSummaryViewModel(0, 0);
+
+            if (basket != null)
+            {
+                int? count = (from b in basket.BasketItems
+                              select b.Quantity).Sum();
+                decimal? total = (from b in basket.BasketItems
+                                  join p in productRepo.Collection()
+                                  on b.ProductId equals p.Id
+                                  select b.Quantity * p.Price).Sum();
+
+                basketSummary.BasketCount = count ?? 0;
+                basketSummary.BasketTotal = total ?? decimal.Zero;
+
+                return basketSummary;
+            }
+
+            return basketSummary;
+        }
+    }
 }
