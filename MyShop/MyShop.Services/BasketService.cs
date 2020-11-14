@@ -58,7 +58,7 @@ namespace MyShop.Services
             var cookie = new HttpCookie(basketSessionName);
             cookie.Value = basket.Id;
             cookie.Expires = DateTime.Now.AddDays(1);
-            httpContext.Request.Cookies.Add(cookie);
+            httpContext.Response.Cookies.Add(cookie);
 
             return basket;
         }
